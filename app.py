@@ -39,5 +39,24 @@ def mark_complete():
     response_data = {"success": False}
     return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
 
+# fetch tasks
+@app.route('/fetch/tasks', methods=['GET'])
+def fetch_tasks():
+    result = collection.find()
+    # Find all documents in the collection
+    all_documents = collection.find()
+
+    print(all_documents)
+    # Check if there are no documents in the collection
+    # if all_documents.count() > 0:
+
+
+
+
+    if result.modified_count > 0:
+        response_data = {"success": True, "message": "Marked as completed"}
+        return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 201
+    response_data = {"success": False}
+    return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
 if __name__ == '__main__':
     app.run(debug=True)
