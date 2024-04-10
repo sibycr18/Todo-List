@@ -19,8 +19,7 @@ def hello_world():
 def add_task():
     data = request.get_json()
     task = data['task']
-    completed = data['completed']
-    result = collection.insert_one({'task' : task, 'completed' : completed})
+    result = collection.insert_one({'task' : task, 'completed' : False})
     _id = result.inserted_id
     if _id:
         response_data = {"success": True, "message": "Task added successfully", "task_id": str(_id)}
