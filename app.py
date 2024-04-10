@@ -14,6 +14,7 @@ collection = db['tasks']
 def hello_world():
     return 'Welcome to ToDo App'
 
+# add task end point
 @app.route('/add/task', methods=['POST'])
 def add_task():
     data = request.get_json()
@@ -23,6 +24,18 @@ def add_task():
     _id = result.inserted_id
     if _id:
         response_data = {"success": True, "message": "Task added successfully", "task_id": str(_id)}
+        return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 201
+    response_data = {"success": False}
+    return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
+
+# mark as complete end point
+@app.route('/mark/complete', methods=['PUT'])
+def mark_complete():
+    data = request.get_json()
+    _id = data['id']
+    result = collection.update_one({"_id": ObjectId(_id)}, {"$set": {"completed": True}})
+    if result.modified_count > 0:
+        response_data = {"success": True, "message": "Marked as completed"}
         return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 201
     response_data = {"success": False}
     return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
