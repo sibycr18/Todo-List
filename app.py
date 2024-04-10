@@ -1,11 +1,12 @@
 from flask import Flask, Response, request 
 from pymongo import MongoClient
+from bson import json_util, ObjectId
 
 app = Flask(__name__)
 
 client = MongoClient()
 
-db = client['To-do list']
+db = client['ToDo']
 collection = db['tasks']
 
 
@@ -18,12 +19,14 @@ def add_task():
     data = request.get_json()
     task = data['task']
     completed = data['completed']
-    _id = collection.insert_one({'task' : task, 'completed' : completed})
+    result = collection.insert_one({'task' : task, 'completed' : completed})
+    _id = result.inserted_id
     if _id:
-        response_data = {'success': True, 'message': 'Task added successfully', 'task_id': _id}
-        return Response(response_data)
-    response_data = {'success': False}
-    return Response(response_data)
+        print(_id)
+        response_data = {"success": True, "message": "Task added successfully", "task_id": str(_id)}
+        return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 201
+    response_data = {"success": False}
+    return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
