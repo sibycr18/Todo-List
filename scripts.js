@@ -77,6 +77,28 @@ function renderTasks(tasks) {
         });
     }}
 
+function addTask(taskText) {
+    // Make an API request to add the task
+    fetch('http://127.0.0.1:5000/add/task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            task: taskText,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the API response, update UI, etc.
+            console.log('Task added:', data);
+            loadPendingTasks()
+        })
+        .catch(error => {
+            console.error('Error adding task:', error);
+        });
+    }
+
 // Add task when button clicked
 document.addEventListener('DOMContentLoaded', function () {
     const addTasksContainer = document.getElementById('addTaskWrapper');
@@ -117,28 +139,6 @@ document.addEventListener('DOMContentLoaded', function () {
             addTaskButton.disabled = false
         });
     });
-
-    function addTask(taskText) {
-        // Make an API request to add the task
-        fetch('http://127.0.0.1:5000/add/task', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                task: taskText,
-            }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the API response, update UI, etc.
-                console.log('Task added:', data);
-                loadPendingTasks()
-            })
-            .catch(error => {
-                console.error('Error adding task:', error);
-            });
-    }
 });
 
 
