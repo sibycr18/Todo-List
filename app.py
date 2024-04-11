@@ -1,8 +1,10 @@
 from flask import Flask, Response, request 
 from pymongo import MongoClient
 from bson import json_util, ObjectId
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 client = MongoClient()
 
@@ -31,7 +33,7 @@ def add_task():
 @app.route('/mark/complete', methods=['PUT'])
 def mark_complete():
     data = request.get_json()
-    _id = data['id']
+    _id = ObjectId(data['id'])
     result = collection.update_one({"_id": ObjectId(_id)}, {"$set": {"completed": True}})
     if result.modified_count > 0:
         response_data = {"success": True, "message": "Marked as completed"}
@@ -42,21 +44,18 @@ def mark_complete():
 # fetch tasks
 @app.route('/fetch/tasks', methods=['GET'])
 def fetch_tasks():
-    result = collection.find()
-    # Find all documents in the collection
-    all_documents = collection.find()
+    try:
+        # Find all documents in the collection
+        result = list(collection.find({"completed": False}))
+        for tasks in result:
+            tasks["_id"] = str(tasks["_id"])
 
-    print(all_documents)
-    # Check if there are no documents in the collection
-    # if all_documents.count() > 0:
-
-
-
-
-    if result.modified_count > 0:
-        response_data = {"success": True, "message": "Marked as completed"}
+        response_data = {"success": True, "tasks" : result}
         return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 201
-    response_data = {"success": False}
-    return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
+    except:
+        response_data = {"success": False}
+        return Response(json_util.dumps(response_data, indent=2), content_type='application/json'), 500
+    
+
 if __name__ == '__main__':
     app.run(debug=True)
